@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Hostel Application</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background-color: #121212;
+      color: #f0f0f0;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      background-color: #1e1e1e;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      border-bottom: 1px solid #333;
+    }
+
+    .navbar a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: background 0.2s ease;
+    }
+
+    .navbar a:hover {
+      background-color: #333;
+    }
+
+    .main-container {
+      max-width: 600px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    form {
+      background-color: #1f1f1f;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #333;
+    }
+
+    form input,
+    form select,
+    form textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      color: #fff;
+      border-radius: 6px;
+    }
+
+    form button {
+      background-color: #4a90e2;
+      color: white;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    form button:hover {
+      background-color: #357bd8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🔐 Auth protection and logout -->
+  <script>
+    if (!localStorage.getItem("studentName")) {
+      alert("⚠️ You must be logged in to access this page.");
+      window.location.href = "student-login.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("studentName");
+      window.location.href = "student-login.html";
+    }
+  </script>
+
+  <nav class="navbar">
+    <a href="admin-rooms.html">🏨 Manage Rooms</a>
+    <a href="student-apply.html">🧑‍🎓 Student Apply</a>
+    <a href="index.html">🏠 Home</a>
+    <a href="#" onclick="logout()">🚪 Logout</a>
+  </nav>
+
+  <div class="main-container">
+    <h1>Student Hostel Application</h1>
+    <form id="applicationForm">
+      <input type="text" name="name" placeholder="Full Name" required />
+      <input type="text" name="studentId" placeholder="Student ID" required />
+
+      <select name="gender" required>
+        <option value="">Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+
+      <select name="hostel" id="hostelSelect" required>
+        <option value="">Select Hostel</option>
+      </select>
+
+      <select name="roomType" required>
+        <option value="">Select Room Type</option>
+        <option value="1-in-1">1-in-1</option>
+        <option value="2-in-1">2-in-1</option>
+        <option value="4-in-1">4-in-1</option>
+      </select>
+
+      <textarea name="notes" placeholder="Additional Notes (optional)" rows="3"></textarea>
+
+      <button type="submit">Submit Application</button>
+    </form>
+  </div>
+
+  <script>
+    const BASE_URL = 'http://localhost:5000';
+
+    // 🏢 Load available hostels
+    async function loadHostels() {
+      try {
+        const res = await fetch(`${BASE_URL}/rooms`);
+        const data = await res.json();
+
+        const select = document.getElementById('hostelSelect');
+        select.innerHTML = '<option value="">Select Hostel</option>';
+
+        data.forEach(room => {
+          if (room.status.toLowerCase() === 'available') {
+            const option = document.createElement('option');
+            option.value = room.name;
+            option.textContent = room.name;
+            select.appendChild(option);
+          }
+        });
+      } catch (err) {
+        console.error("❌ Failed to load hostels:", err);
+      }
+    }
+
+    loadHostels();
+
+    // 🧾 Submit Application
+    document.getElementById('applicationForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const form = e.target;
+
+      const application = {
+        name: form.name.value,
+        studentId: form.studentId.value,
+        gender: form.gender.value,
+        hostel: form.hostel.value,
+        roomType: form.roomType.value,
+        notes: form.notes.value
+      };
+
+      try {
+        const res = await fetch(`${BASE_URL}/apply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(application)
+        });
+
+        const data = await res.json();
+        alert(data.message);
+        form.reset();
+        loadHostels(); // Refresh list in case availability changed
+      } catch (error) {
+        console.error("❌ Failed to submit application:", error);
+        alert("An error occurred. Please try again.");
+      }
+    });
+  </script>
+</body>
+</html>

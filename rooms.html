@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Available Hostel Rooms</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container" style="flex-direction: column; padding: 20px;">
+        <h1 style="margin-bottom: 20px;">Available Hostel Rooms</h1>
+        <div id="roomList"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:5000';
+
+        async function loadRooms() {
+            try {
+                const res = await fetch(`${BASE_URL}/rooms`);
+                const rooms = await res.json();
+
+                const roomList = document.getElementById('roomList');
+                roomList.innerHTML = '';
+
+                rooms.forEach(room => {
+                    const card = document.createElement('div');
+                    card.style.background = '#1e1e1e';
+                    card.style.color = '#f0f0f0';
+                    card.style.marginBottom = '20px';
+                    card.style.padding = '20px';
+                    card.style.borderRadius = '10px';
+                    card.style.boxShadow = '0 0 15px rgba(0,0,0,0.4)';
+                    card.style.display = 'flex';
+                    card.style.alignItems = 'center';
+                    card.style.gap = '20px';
+
+                    card.innerHTML = `
+                        <img src="${room.image}" alt="${room.name}" style="width:150px; height:100px; object-fit:cover; border-radius:8px;">
+                        <div>
+                            <h3>${room.name}</h3>
+                            <p>${room.description}</p>
+                            <p>Max Occupancy: ${room.capacity}</p>
+                            <p>Status: <strong style="color:${room.status === 'Available' ? 'lightgreen' : 'red'}">${room.status}</strong></p>
+                        </div>
+                    `;
+
+                    roomList.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading rooms:', error);
+                document.getElementById('roomList').innerText = 'Could not load rooms.';
+            }
+        }
+
+        loadRooms();
+    </script>
+</body>
+</html>

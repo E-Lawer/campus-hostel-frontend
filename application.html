@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hostel Application</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="form-wrapper">
+            <h1>Apply for Hostel</h1>
+            <form id="hostelForm">
+                <input type="text" name="name" placeholder="Full Name" required>
+                <input type="text" name="studentId" placeholder="Student ID" required>
+                <input type="text" name="gender" placeholder="Gender" required>
+                <input type="text" name="hostel" placeholder="Preferred Hostel Name" required>
+                <select name="roomType" required>
+                    <option value="">Select Room Type</option>
+                    <option value="Single">Single Room</option>
+                    <option value="Shared">Shared Room</option>
+                </select>
+                <textarea name="notes" placeholder="Extra notes (optional)" rows="4"></textarea>
+                <button type="submit">Submit Application</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:5000';
+
+        document.getElementById('hostelForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+
+            const res = await fetch(`${BASE_URL}/apply`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: form.name.value,
+                    studentId: form.studentId.value,
+                    gender: form.gender.value,
+                    hostel: form.hostel.value,
+                    roomType: form.roomType.value,
+                    notes: form.notes.value
+                })
+            });
+
+            const data = await res.json();
+            alert(data.message);
+            form.reset();
+        });
+    </script>
+</body>
+</html>
