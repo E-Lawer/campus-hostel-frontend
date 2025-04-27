@@ -1,5 +1,5 @@
 // Later, we will change this link to your actual backend URL
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = "https://campus-hostel-backend-myvq.onrender.com/api";
 
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
